@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html  lang="en" xmlns:th="http://www.thymeLeaf.org" th:replace="~{base::Layout(~{::section})}">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link rel="stylesheet" href="/css/style.css"></head>
+<body>
+	
+<section>
+	<div class="container p-5">
+	<p class="text-center fs-3 mt-4 "> Admin dashboard</p>
+		<div class="row p-5">
+			<div class="col-md-4 mt-4">
+			  <a href="/Admin/addproduct" class="text-decoration-none">
+				<div class="card card-sh">
+					<div class="card-body text-center text-primary">
+					<i class="fa-solid fa-square-plus fa-2x text-primary"></i>
+					<h4 class="fw-bold">Add product</h4>
+					</div>
+				</div>
+			  </a>
+			</div>
+			
+			<div class="col-md-4 mt-4">
+			  <a href="/Admin/category" class="text-decoration-none">
+				<div class="card card-sh">
+					<div class="card-body text-center text-primary">
+					<i class="fa-solid fa-right-to-bracket fa-2x text-warning"></i>
+					<h4 class="fw-bold">Category</h4>
+					</div>
+				</div>
+			  </a>
+			</div>
+			<div class="col-md-4 mt-4">
+			  <a href="/Admin/products" class="text-decoration-none">
+				<div class="card card-sh">
+					<div class="card-body text-center text-primary">
+					<i class="fa-solid fa-table-list fa-2x text-success"></i>
+					<h4 class="fw-bold">View product</h4>
+					</div>
+				</div>
+			  </a>
+			</div>
+			<div class="col-md-4 mt-4">
+			  <a href="#" class="text-decoration-none">
+				<div class="card card-sh">
+					<div class="card-body text-center text-primary">
+					<i class="fa-solid fa-box-open fa-2x text-warning"></i>
+					<h4 class="fw-bold">Orders</h4>
+					</div>
+				</div>
+			  </a>
+			</div>
+			
+			<div class="col-md-4 mt-4">
+			  <a href="/Admin/users" class="text-decoration-none">
+				<div class="card card-sh">
+					<div class="card-body text-center text-primary">
+					<i class="fa-solid fa-circle-user fa-2x text-primary"></i>
+					<h4 class="fw-bold">User</h4>
+					</div>
+				</div>
+			  </a>
+			</div>
+			
+			<div class="col-md-4 mt-4">
+			  <a href="#" class="text-decoration-none">
+				<div class="card card-sh">
+					<div class="card-body text-center text-primary">
+					<i class="fa-solid fa-user-plus fa-2x text-primary"></i>
+					<h4 class="fw-bold">Add Admin</h4>
+					</div>
+				</div>
+			  </a>
+			</div>
+		</div>
+	</div>
+</section>
+
+</body>
+</html>
