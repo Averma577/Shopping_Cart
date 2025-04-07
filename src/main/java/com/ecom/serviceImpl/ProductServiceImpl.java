@@ -1,9 +1,15 @@
 package com.ecom.serviceImpl;
 
-import com.ecom.entity.Category;
+import com.ecom.configure.ProductNotFoundException;
 import com.ecom.entity.Product;
 import com.ecom.repository.ProductRepository;
 import com.ecom.service.ProductService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,111 +18,86 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
-import org.springframework.web.multipart.MultipartFile;
+import java.util.UUID;
 
 @Service
 public class ProductServiceImpl implements ProductService {
-    @Autowired
-    private ProductRepository productRepository;
+	private static final Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
 
+	@Autowired
+	private ProductRepository productRepository;
 
-    @Override
-    public Product saveProduct(Product product) {
-        // Implement saving product logic here
-        return productRepository.save(product);
-    }
-
+	@Override
+	public Product saveProduct(Product product) {
+		return productRepository.save(product);
+	}
 
 	@Override
 	public List<Product> getAllProducts() {
-	return productRepository.findAll();
-	
+		return productRepository.findAll();
 	}
-
 
 	@Override
 	public boolean deleteProduct(Long id) {
 		Product product = productRepository.findById(id).orElse(null);
-		if(!ObjectUtils.isEmpty(product)) {
+		if (!ObjectUtils.isEmpty(product)) {
 			productRepository.delete(product);
 			return true;
 		}
 		return false;
-		
 	}
-
 
 	@Override
 	public Product getProductById(Long id) {
-		Product product = productRepository.findById(id).orElse(null);
-		return product;
+		return productRepository.findById(id).orElse(null);
 	}
-
 
 	@Override
 	public Product updateProduct(Product product, MultipartFile file) throws IOException {
-	    Product dbproduct = getProductById(product.getId());
-	    String image = file.isEmpty() ? dbproduct.getImage() : file.getOriginalFilename();
-	    dbproduct.setImage(image);
-	    dbproduct.setTitle(product.getTitle());
-	    dbproduct.setDescription(product.getDescription());
-	    dbproduct.setCategory(product.getCategory());
-	    dbproduct.setPrice(product.getPrice());
-	    dbproduct.setIsActive(product.isActive());
-	    dbproduct.setStock(product.getStock());
-	    dbproduct.setDiscount(product.getDiscount());
+		Product dbproduct = getProductById(product.getId());
+		String image = file.isEmpty() ? dbproduct.getImage() : UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+		dbproduct.setImage(image);
+		dbproduct.setTitle(product.getTitle());
+		dbproduct.setDescription(product.getDescription());
+		dbproduct.setCategory(product.getCategory());
+		dbproduct.setPrice(product.getPrice());
+		dbproduct.setIsActive(product.isActive());
+		dbproduct.setStock(product.getStock());
+		dbproduct.setDiscount(product.getDiscount());
 
-	    // Change to percentage
-	    double discount = product.getPrice() * (product.getDiscount() / 100.0);
-	    double discountPrice = product.getPrice() - discount;
-	    dbproduct.setDiscountPrice(discountPrice);
+		double discount = product.getPrice() * (product.getDiscount() / 100.0);
+		double discountPrice = product.getPrice() - discount;
+		dbproduct.setDiscountPrice(discountPrice);
 
-	    Product savedProduct = productRepository.save(dbproduct);
+		Product savedProduct = productRepository.save(dbproduct);
 
-	    if (!ObjectUtils.isEmpty(savedProduct)) {
-	        if (!image.isEmpty()) {
-	            try {
-	                File saveFile = new ClassPathResource("static/img").getFile();
-	                Path path = Paths.get(saveFile.getAbsolutePath() + File.separator + "product_img" + File.separator
-	                        + file.getOriginalFilename());
-	                Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-	            } catch (Exception e) {
-	                System.out.println("Error saving image: " + e.getMessage());
-	            }
-	        }
-	        return savedProduct;
-	    }
+		if (!ObjectUtils.isEmpty(savedProduct)) {
+			if (!file.isEmpty()) {
+				try {
+					File saveFile = new File("uploads" + File.separator + "product_img");
+					if (!saveFile.exists()) {
+						saveFile.mkdirs(); // Create directory if it doesn't exist
+					}
+					Path path = Paths.get(saveFile.getAbsolutePath() + File.separator + image);
+					Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+				} catch (Exception e) {
+					logger.error("Error saving image: " + e.getMessage(), e);
+				}
+			}
+			return savedProduct;
+		}
 
-	    return null;
+		return null;
 	}
-
 
 	@Override
 	public List<Product> getAllActiveProducts(String category) {
-		
-		List<Product> byIsActiveTrue = null;
-		if(ObjectUtils.isEmpty(category)) {
+		List<Product> byIsActiveTrue;
+		if (category == null || category.isEmpty()) {
 			byIsActiveTrue = productRepository.findByIsActiveTrue();
+		} else {
+			byIsActiveTrue  = productRepository.findByCategoryAndIsActiveTrue(category);
 		}
-		else {
-			byIsActiveTrue=productRepository.findByCategory(category);
-		}
-		
-		
-		
 		return byIsActiveTrue;
 	}
-
-
-	
-	
-
-
-
-	
 }
